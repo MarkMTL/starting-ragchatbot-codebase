@@ -19,9 +19,13 @@ dev = [
     "pytest>=9.1.1",
     "black>=25.1.0",
     "ruff>=0.9.0",
+    "httpx>=0.28.1",
 ]
 
 [tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["backend"]
+addopts = "-q --strict-markers"
 markers = [
     "integration: end-to-end tests hitting the real ChromaDB + Anthropic API",
 ]

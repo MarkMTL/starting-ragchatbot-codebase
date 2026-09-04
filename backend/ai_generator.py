@@ -1,5 +1,7 @@
+from typing import Any, Dict, List, Optional
+
 import anthropic
-from typing import List, Optional, Dict, Any
+
 
 class AIGenerator:
     """Handles interactions with Anthropic's Claude API for generating responses"""
@@ -41,22 +43,21 @@ All responses must be:
 4. **Example-supported** - Include relevant examples when they aid understanding
 Provide only the direct answer to what was asked.
 """
-    
+
     def __init__(self, api_key: str, model: str):
         self.client = anthropic.Anthropic(api_key=api_key)
         self.model = model
-        
+
         # Pre-build base API parameters
-        self.base_params = {
-            "model": self.model,
-            "temperature": 0,
-            "max_tokens": 800
-        }
-    
-    def generate_response(self, query: str,
-                         conversation_history: Optional[str] = None,
-                         tools: Optional[List] = None,
-                         tool_manager=None) -> str:
+        self.base_params = {"model": self.model, "temperature": 0, "max_tokens": 800}
+
+    def generate_response(
+        self,
+        query: str,
+        conversation_history: Optional[str] = None,
+        tools: Optional[List] = None,
+        tool_manager=None,
+    ) -> str:
         """
         Generate AI response with optional sequential tool usage and conversation context.
 
@@ -87,14 +88,18 @@ Provide only the direct answer to what was asked.
         # Backward-compatible path: without tools/manager, a single plain call.
         if not tools or not tool_manager:
             response = self.client.messages.create(
-                **self._build_params(messages, system_content, tools, include_tools=False)
+                **self._build_params(
+                    messages, system_content, tools, include_tools=False
+                )
             )
             return self._extract_text(response)
 
         # Sequential tool-calling loop; every in-loop call carries tools.
         for _ in range(self.MAX_TOOL_ROUNDS):
             response = self.client.messages.create(
-                **self._build_params(messages, system_content, tools, include_tools=True)
+                **self._build_params(
+                    messages, system_content, tools, include_tools=True
+                )
             )
 
             # (b) Claude answered directly — no tool use.
@@ -117,8 +122,13 @@ Provide only the direct answer to what was asked.
         )
         return self._extract_text(final_response)
 
-    def _build_params(self, messages: List[Dict[str, Any]], system_content: str,
-                      tools: Optional[List], include_tools: bool) -> Dict[str, Any]:
+    def _build_params(
+        self,
+        messages: List[Dict[str, Any]],
+        system_content: str,
+        tools: Optional[List],
+        include_tools: bool,
+    ) -> Dict[str, Any]:
         """Assemble API params, attaching tools only when include_tools is set."""
         params = {
             **self.base_params,
@@ -145,19 +155,23 @@ Provide only the direct answer to what was asked.
                 continue
             try:
                 result = tool_manager.execute_tool(block.name, **block.input)
-                tool_result_blocks.append({
-                    "type": "tool_result",
-                    "tool_use_id": block.id,
-                    "content": result,
-                })
+                tool_result_blocks.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": result,
+                    }
+                )
             except Exception as e:
                 had_error = True
-                tool_result_blocks.append({
-                    "type": "tool_result",
-                    "tool_use_id": block.id,
-                    "content": f"Tool execution failed: {e}",
-                    "is_error": True,
-                })
+                tool_result_blocks.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": f"Tool execution failed: {e}",
+                        "is_error": True,
+                    }
+                )
         return tool_result_blocks, had_error
 
     def _extract_text(self, response) -> str:

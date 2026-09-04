@@ -37,8 +37,6 @@ target-version = ["py313"]
 [tool.ruff]
 line-length = 88
 target-version = "py313"
-# Scratch copies of superseded local tests, kept only as a backup.
-extend-exclude = ["backend/tests_local_backup"]
 
 [tool.ruff.lint]
 # E/W: pycodestyle, F: pyflakes, I: import sorting.

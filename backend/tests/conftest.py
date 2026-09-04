@@ -6,20 +6,19 @@ module imports like ``from vector_store import SearchResults`` resolve.
 """
 
 from types import SimpleNamespace
+from typing import List, Optional
 from unittest.mock import MagicMock
 
 import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
-from typing import List, Optional
-
 from vector_store import SearchResults
-
 
 # --------------------------------------------------------------------------- #
 # Search / vector store fixtures
 # --------------------------------------------------------------------------- #
+
 
 @pytest.fixture
 def search_results_factory():
@@ -56,7 +55,7 @@ def mock_vector_store(search_results_factory):
             {
                 "course_link": "http://example.com/course",
                 "lessons_json": '[{"lesson_number": 0, "lesson_title": "Intro"},'
-                                ' {"lesson_number": 1, "lesson_title": "Servers"}]',
+                ' {"lesson_number": 1, "lesson_title": "Servers"}]',
             }
         ]
     }
@@ -66,6 +65,7 @@ def mock_vector_store(search_results_factory):
 # --------------------------------------------------------------------------- #
 # Anthropic response fixtures
 # --------------------------------------------------------------------------- #
+
 
 @pytest.fixture
 def mock_anthropic_response_factory():
@@ -90,6 +90,7 @@ def mock_anthropic_response_factory():
 # --------------------------------------------------------------------------- #
 # RAG system + API app fixtures
 # --------------------------------------------------------------------------- #
+
 
 @pytest.fixture
 def mock_rag_system():

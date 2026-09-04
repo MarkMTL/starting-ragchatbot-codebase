@@ -1,8 +1,7 @@
 """Tests for search_tools: CourseSearchTool, CourseOutlineTool, ToolManager."""
 
 import pytest
-
-from search_tools import CourseSearchTool, CourseOutlineTool, ToolManager
+from search_tools import CourseOutlineTool, CourseSearchTool, ToolManager
 
 
 class TestCourseSearchTool:
@@ -15,7 +14,9 @@ class TestCourseSearchTool:
             {"text": "MCP Course - Lesson 1", "link": "http://example.com/lesson1"}
         ]
 
-    def test_execute_course_link_when_no_lesson(self, mock_vector_store, search_results_factory):
+    def test_execute_course_link_when_no_lesson(
+        self, mock_vector_store, search_results_factory
+    ):
         mock_vector_store.search.return_value = search_results_factory(
             documents=["Course-level chunk."],
             metadata=[{"course_title": "MCP Course"}],
@@ -26,14 +27,20 @@ class TestCourseSearchTool:
             {"text": "MCP Course", "link": "http://example.com/course"}
         ]
 
-    def test_execute_empty_reports_filters(self, mock_vector_store, search_results_factory):
-        mock_vector_store.search.return_value = search_results_factory(documents=[], metadata=[])
+    def test_execute_empty_reports_filters(
+        self, mock_vector_store, search_results_factory
+    ):
+        mock_vector_store.search.return_value = search_results_factory(
+            documents=[], metadata=[]
+        )
         tool = CourseSearchTool(mock_vector_store)
         out = tool.execute(query="mcp", course_name="MCP", lesson_number=2)
         assert out == "No relevant content found in course 'MCP' in lesson 2."
 
     def test_execute_error_passthrough(self, mock_vector_store, search_results_factory):
-        mock_vector_store.search.return_value = search_results_factory(error="bad filter")
+        mock_vector_store.search.return_value = search_results_factory(
+            error="bad filter"
+        )
         tool = CourseSearchTool(mock_vector_store)
         assert tool.execute(query="mcp") == "bad filter"
 

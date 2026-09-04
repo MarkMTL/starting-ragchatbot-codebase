@@ -1,11 +1,11 @@
 """Tests for the FastAPI API endpoints (inline test app, mocked RAGSystem)."""
 
-import pytest
-
 
 class TestQueryEndpoint:
     def test_query_with_session_id(self, client, mock_rag_system):
-        resp = client.post("/api/query", json={"query": "what is mcp", "session_id": "abc"})
+        resp = client.post(
+            "/api/query", json={"query": "what is mcp", "session_id": "abc"}
+        )
         assert resp.status_code == 200
         data = resp.json()
         assert data["answer"] == "answer text"

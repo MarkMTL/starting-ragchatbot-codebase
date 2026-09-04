@@ -3,7 +3,6 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 import rag_system as rag_mod
 from rag_system import RAGSystem
 
@@ -21,13 +20,15 @@ def rag(monkeypatch):
     cfg.ANTHROPIC_MODEL = "model"
     cfg.MAX_HISTORY = 2
 
-    with patch.object(rag_mod, "DocumentProcessor"), \
-         patch.object(rag_mod, "VectorStore"), \
-         patch.object(rag_mod, "AIGenerator"), \
-         patch.object(rag_mod, "SessionManager"), \
-         patch.object(rag_mod, "CourseSearchTool"), \
-         patch.object(rag_mod, "CourseOutlineTool"), \
-         patch.object(rag_mod, "ToolManager"):
+    with (
+        patch.object(rag_mod, "DocumentProcessor"),
+        patch.object(rag_mod, "VectorStore"),
+        patch.object(rag_mod, "AIGenerator"),
+        patch.object(rag_mod, "SessionManager"),
+        patch.object(rag_mod, "CourseSearchTool"),
+        patch.object(rag_mod, "CourseOutlineTool"),
+        patch.object(rag_mod, "ToolManager"),
+    ):
         system = RAGSystem(cfg)
         yield system
 
@@ -64,7 +65,9 @@ class TestQuery:
     def test_generate_called_with_tools(self, rag):
         rag.ai_generator.generate_response.return_value = "a"
         rag.tool_manager.get_last_sources.return_value = []
-        rag.tool_manager.get_tool_definitions.return_value = [{"name": "search_course_content"}]
+        rag.tool_manager.get_tool_definitions.return_value = [
+            {"name": "search_course_content"}
+        ]
         rag.query("q")
         kwargs = rag.ai_generator.generate_response.call_args.kwargs
         assert kwargs["tools"] == [{"name": "search_course_content"}]
